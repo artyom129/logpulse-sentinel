@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ row.title }} · {{ app_name }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div><span class="eyebrow">Incident #{{ row.id }}</span><h1>{{ row.title }}</h1><p>{{ row.service }} · {{ row.source }}</p></div>
+  <span class="status large {{ row.status }}">{{ row.status }}</span>
+</section>
+
+<section class="detail-grid">
+<article class="panel">
+  <div class="panel-head"><div><span class="eyebrow">Incident summary</span><h2>Operational data</h2></div></div>
+  <dl class="facts">
+    <div><dt>Severity</dt><dd><span class="severity {{ row.severity }}">{{ row.severity }}</span></dd></div>
+    <div><dt>Repeat count</dt><dd>{{ row.count }}</dd></div>
+    <div><dt>First seen</dt><dd>{{ row.first_seen }}</dd></div>
+    <div><dt>Last seen</dt><dd>{{ row.last_seen }}</dd></div>
+    <div><dt>Recovered at</dt><dd>{{ row.recovered_at or '—' }}</dd></div>
+    <div><dt>Acknowledged</dt><dd>{{ row.acknowledged_at or '—' }}</dd></div>
+  </dl>
+  <div class="message-box">{{ row.sample_message }}</div>
+  {% if row.status in ['open','acknowledged'] %}
+  <div class="actions">
+    {% if row.status == 'open' %}<form method="post" action="/incidents/{{ row.id }}/acknowledge"><button class="button" type="submit">Acknowledge</button></form>{% endif %}
+    <form method="post" action="/incidents/{{ row.id }}/resolve"><button class="button primary" type="submit">Resolve manually</button></form>
+  </div>
+  {% endif %}
+</article>
+
+<article class="panel">
+  <div class="panel-head"><div><span class="eyebrow">Matched lines</span><h2>Event timeline</h2></div></div>
+  <div class="event-list">
+  {% for event in row.events %}
+    <article><span class="timeline-dot {{ event.kind }}"></span><div><strong>{{ event.kind.title() }} · {{ event.created_at }}</strong><p>{{ event.message }}</p></div></article>
+  {% else %}
+    <p class="muted">No event records.</p>
+  {% endfor %}
+  </div>
+</article>
+</section>
+{% endblock %}

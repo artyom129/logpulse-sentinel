@@ -1,0 +1,65 @@
+[app]
+name = "LogPulse Sentinel"
+database_path = "data/logpulse.db"
+max_incidents_on_dashboard = 100
+
+[monitor]
+scan_interval_seconds = 1.0
+dedupe_window_seconds = 300
+repeat_alert_every = 25
+start_at_end = false
+files = ["sample_logs/application.log"]
+
+[privacy]
+redact_emails = true
+redact_ipv4 = true
+redact_tokens = true
+extra_patterns = [
+  "(?i)password\\s*[=:]\\s*\\S+",
+  "(?i)authorization:\\s*bearer\\s+\\S+"
+]
+
+[telegram]
+enabled = false
+poll_commands = true
+poll_interval_seconds = 10
+
+[[rules]]
+id = "database_timeout"
+title = "Database connection failure"
+severity = "critical"
+service = "database"
+pattern = "(?i)(database|postgres|mysql|sql).*(timeout|connection refused|too many connections)"
+recovery_pattern = "(?i)(database|postgres|mysql|sql).*(recovered|connected|healthy)"
+
+[[rules]]
+id = "payment_failure"
+title = "Payment processing failure"
+severity = "high"
+service = "payments"
+pattern = "(?i)(payment|checkout|gateway).*(failed|declined|timeout|unavailable)"
+recovery_pattern = "(?i)(payment|checkout|gateway).*(recovered|healthy|success rate normal)"
+
+[[rules]]
+id = "disk_pressure"
+title = "Disk capacity problem"
+severity = "high"
+service = "infrastructure"
+pattern = "(?i)(disk|filesystem).*(9[0-9]%|full|no space left|read-only)"
+recovery_pattern = "(?i)(disk|filesystem).*(normal|recovered|below threshold)"
+
+[[rules]]
+id = "worker_crash"
+title = "Background worker crash"
+severity = "critical"
+service = "workers"
+pattern = "(?i)(worker|job|queue).*(crash|terminated|panic|out of memory)"
+recovery_pattern = "(?i)(worker|job|queue).*(restarted|healthy|recovered)"
+
+[[rules]]
+id = "auth_failure"
+title = "Authentication failure spike"
+severity = "medium"
+service = "authentication"
+pattern = "(?i)(auth|login|token).*(failed|invalid|unauthorized|expired)"
+recovery_pattern = "(?i)(auth|login).*(normal|recovered|healthy)"

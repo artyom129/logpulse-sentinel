@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Overview · {{ app_name }}{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <span class="eyebrow">Live incident control</span>
+    <h1>Turn noisy logs into a clear operational timeline.</h1>
+    <p>Errors are grouped automatically, repeated events are counted, and recovery messages close incidents without manual cleanup.</p>
+  </div>
+  <div class="hero-actions">
+    <a class="button primary" href="/incidents">Review incidents</a>
+    <a class="button" href="/exports/incidents.xlsx">Export Excel</a>
+  </div>
+</section>
+
+<section class="stats">
+  <article><span>Open incidents</span><strong>{{ stats.open }}</strong><small>Needs attention</small></article>
+  <article><span>Open critical</span><strong>{{ stats.critical }}</strong><small>Highest severity</small></article>
+  <article><span>Events today</span><strong>{{ stats.events_today }}</strong><small>Matched log lines</small></article>
+  <article><span>Average MTTR</span><strong>{{ stats.mttr_minutes }}m</strong><small>Recovered incidents</small></article>
+  <article><span>Total incidents</span><strong>{{ stats.total }}</strong><small>All-time history</small></article>
+</section>
+
+<div class="layout">
+<section class="panel wide">
+  <div class="panel-head">
+    <div><span class="eyebrow">Incident queue</span><h2>Latest incidents</h2></div>
+    <a href="/incidents">View all →</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Incident</th><th>Service</th><th>Severity</th><th>Count</th><th>Last seen</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for row in rows[:12] %}
+        <tr>
+          <td><a class="incident-link" href="/incidents/{{ row.id }}">{{ row.title }}</a><small>{{ row.source }}</small></td>
+          <td>{{ row.service }}</td>
+          <td><span class="severity {{ row.severity }}">{{ row.severity }}</span></td>
+          <td><span class="count">{{ row.count }}</span></td>
+          <td>{{ row.last_seen.replace('T',' ')[:19] }}</td>
+          <td><span class="status {{ row.status }}">{{ row.status }}</span></td>
+        </tr>
+      {% else %}
+        <tr><td class="empty" colspan="6">No incidents yet. Run seed_demo.py or append a matching line to the sample log.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<aside class="panel activity">
+  <div class="panel-head"><div><span class="eyebrow">Event stream</span><h2>Recent activity</h2></div></div>
+  <div class="timeline">
+  {% for event in events %}
+    <article>
+      <span class="timeline-dot {{ event.kind }}"></span>
+      <div><strong>{{ event.rule_id.replace('_',' ') }}</strong><p>{{ event.message[:120] }}</p><small>{{ event.created_at.replace('T',' ')[:19] }}</small></div>
+    </article>
+  {% else %}
+    <p class="muted">No matched events.</p>
+  {% endfor %}
+  </div>
+</aside>
+</div>
+{% endblock %}

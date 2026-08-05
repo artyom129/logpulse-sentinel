@@ -1,0 +1,10 @@
+services:
+  logpulse:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./sample_logs:/app/sample_logs
+      - ./config.toml:/app/config.toml:ro
+    restart: unless-stopped

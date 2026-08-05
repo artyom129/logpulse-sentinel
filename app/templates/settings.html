@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Settings · {{ app_name }}{% endblock %}
+{% block content %}
+<section class="page-head"><div><span class="eyebrow">Runtime configuration</span><h1>Settings</h1><p>Configuration is loaded from config.toml when the service starts.</p></div></section>
+<div class="settings-grid">
+<section class="panel">
+  <h2>Monitor</h2>
+  <dl class="facts">
+    <div><dt>Scan interval</dt><dd>{{ settings.scan_interval_seconds }} sec</dd></div>
+    <div><dt>Deduplication window</dt><dd>{{ settings.dedupe_window_seconds }} sec</dd></div>
+    <div><dt>Repeat alert threshold</dt><dd>Every {{ settings.repeat_alert_every }} events</dd></div>
+    <div><dt>Start at end</dt><dd>{{ settings.start_at_end }}</dd></div>
+  </dl>
+</section>
+<section class="panel">
+  <h2>Monitored files</h2>
+  <ul class="clean-list">{% for path in settings.monitored_files %}<li>{{ path }}</li>{% endfor %}</ul>
+</section>
+<section class="panel">
+  <h2>Detection rules</h2>
+  <ul class="rule-list">{% for rule in settings.rules %}<li><span class="severity {{ rule.severity }}">{{ rule.severity }}</span><div><strong>{{ rule.title }}</strong><small>{{ rule.service }} · {{ rule.id }}</small></div></li>{% endfor %}</ul>
+</section>
+<section class="panel">
+  <h2>Integrations</h2>
+  <dl class="facts">
+    <div><dt>Telegram configured</dt><dd>{{ settings.telegram_enabled and settings.telegram_token and settings.telegram_chat_id }}</dd></div>
+    <div><dt>Telegram commands</dt><dd>{{ settings.telegram_poll_commands }}</dd></div>
+    <div><dt>Database</dt><dd>{{ settings.database_path }}</dd></div>
+  </dl>
+</section>
+</div>
+{% endblock %}
